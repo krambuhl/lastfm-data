@@ -14,20 +14,15 @@ type alias Image =
   { size : String
   , text : String }
 
-type alias Streamable =
-  { fulltrack : String
-  , text : String }
-
 type alias Attributes =
-  { rank : Int }
+  { rank : String }
 
 type alias Artist =
   { attributes : Attributes
   , images : List Image
   , mbid : String
   , name : String
-  , playcount : Int
-  , streamable : String
+  , playcount : String
   , url : String }
 
 type alias Album =
@@ -36,18 +31,17 @@ type alias Album =
   , images : List Image
   , mbid : String
   , name : String
-  , playcount : Int
+  , playcount : String
   , url : String }
 
 type alias Track =
   { artist : ArtistInfo
   , attributes : Attributes
-  , duration : Int
+  , duration : String
   , images : List Image
   , mbid : String
   , name : String
-  , playcount : Int
-  , streamable : Streamable
+  , playcount : String
   , url : String }
 
 type alias Data =
@@ -68,42 +62,37 @@ decodeData =
 
 decodeAlbum : Decode.Decoder Album
 decodeAlbum =
-  Decode.map7 Album
-    (Decode.field "name" Decode.string)
-    (Decode.field "playcount" Decode.int)
-    (Decode.field "mbid" Decode.string)
-    (Decode.field "url" Decode.string)
-    (Decode.field "artist" decodeArtistInfo)
-    (Decode.field "image" (Decode.list decodeImage))
-    (Decode.field "@attr" decodeAttributes)
+  Pipeline.decode Album
+    |> Pipeline.required "artist" decodeArtistInfo
+    |> Pipeline.required "attributes" decodeAttributes
+    |> Pipeline.required "images" (Decode.list decodeImage)
+    |> Pipeline.required "mbid" Decode.string
+    |> Pipeline.required "name" Decode.string
+    |> Pipeline.required "playcount" Decode.string
+    |> Pipeline.required "url" Decode.string
 
 decodeArtist : Decode.Decoder Artist
 decodeArtist =
-  Decode.map7 Artist
-    (Decode.field "attributes" decodeAttributes)
-    (Decode.field "playcount" Decode.int)
-    (Decode.field "images" (Decode.list decodeImage))
-    (Decode.field "mbid" Decode.string)
-    (Decode.field "name" Decode.string)
-    (Decode.field "streamable" decodeStreamable)
-    (Decode.field "url" Decode.string)
+  Pipeline.decode Artist
+    |> Pipeline.required "attributes" decodeAttributes
+    |> Pipeline.required "images" (Decode.list decodeImage)
+    |> Pipeline.required "mbid" Decode.string
+    |> Pipeline.required "name" Decode.string
+    |> Pipeline.required "playcount" Decode.string
+    |> Pipeline.required "url" Decode.string
 
-
---decodeData =
---  Pipeline.decode Data
---    (Decode.field
 
 decodeTrack : Decode.Decoder Track
 decodeTrack =
-  Decode.map8 Track
-    (Decode.field "artist" decodeArtistInfo)
-    (Decode.field "attributes" decodeAttributes)
-    (Decode.field "images" (Decode.list decodeImage))
-    (Decode.field "mbid" Decode.string)
-    (Decode.field "name" Decode.string)
-    (Decode.field "playcount" Decode.int)
-    (Decode.field "streamable" decodeStreamable)
-    (Decode.field "url" Decode.string)
+  Pipeline.decode Track
+    |> Pipeline.required "artist" decodeArtistInfo
+    |> Pipeline.required "attributes" decodeAttributes
+    |> Pipeline.required "duration" Decode.string
+    |> Pipeline.required "images" (Decode.list decodeImage)
+    |> Pipeline.required "mbid" Decode.string
+    |> Pipeline.required "name" Decode.string
+    |> Pipeline.required "playcount" Decode.string
+    |> Pipeline.required "url" Decode.string
 
 decodeArtistInfo : Decode.Decoder ArtistInfo
 decodeArtistInfo =
@@ -118,14 +107,8 @@ decodeImage =
     (Decode.field "size" Decode.string)
     (Decode.field "text" Decode.string)
 
-decodeStreamable : Decode.Decoder Streamable
-decodeStreamable =
-  Decode.map2 Streamable
-    (Decode.field "fulltrack" Decode.string)
-    (Decode.field "text" Decode.string)
-
 decodeAttributes : Decode.Decoder Attributes
 decodeAttributes =
   Decode.map Attributes
-    (Decode.field "rank" Decode.int)
+    (Decode.field "rank" Decode.string)
 

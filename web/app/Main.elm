@@ -16,7 +16,6 @@ main =
     , view = view
     , subscriptions = \_ -> Sub.none }
 
-
 -- Types
 type DataSet
   = TopAlbums
@@ -29,7 +28,9 @@ type SortFormat
 
 type alias State =
   { dataSet : DataSet
-  , dataSort : SortFormat }
+  , dataSort : SortFormat
+  , isLoading : Bool
+  , errorText : Maybe String }
 
 type alias Model =
   { data : LastFm.Data
@@ -46,7 +47,9 @@ initData =
 initState : State
 initState =
   { dataSet = TopAlbums
-  , dataSort = PlayCount }
+  , dataSort = PlayCount
+  , isLoading = False
+  , errorText = Nothing }
 
 init : (Model, Cmd Msg)
 init =
@@ -56,45 +59,80 @@ init =
 -- Msg type
 type Msg
   = RequestData
-  | UpdateData (Result Http.Error LastFm.Image)
+  | UpdateData (Result Http.Error LastFm.Data)
 
 
 -- update
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    RequestData ->
-      (model, Cmd.none)
+  let
+    data = model.data
+    state = model.state
+  in
+    case msg of
+      RequestData ->
+        ( Model
+          data
+          { state
+            | isLoading = True }
+        , getAllData )
 
-    UpdateData (Ok data) ->
-      (Model data model.state, Cmd.none)
+      UpdateData (Ok data) ->
+        ( Model
+          data
+          { state
+            | isLoading = False
+            , errorText = Nothing }
+        , Cmd.none )
 
-    UpdateData (Err _) ->
-      (model, Cmd.none)
+      UpdateData (Err error) ->
+        ( Model
+          data
+          { state
+            | isLoading = False
+            , errorText = Just (toString error) }
+        , Cmd.none )
 
 
 -- View
 view : Model -> Html.Html Msg
 view model =
   let
-    albumCount =
-      List.length model.data.albums
+    data = model.data
+    state = model.state
 
-    textContent =
-      if albumCount > 0 then
-        "Has" ++ (toString albumCount) ++ "Albums"
-      else
-        "No Albums"
+    albumCount = List.length data.albums
+    artistCount = List.length data.artists
+    trackCount = List.length data.tracks
+
+    content =
+      case state.errorText of
+        Just error ->
+          [ text (String.slice 0 1000 error) ]
+
+        Nothing ->
+          if state.isLoading then
+            [ text "Loading..." ]
+          else if albumCount > 0 then
+            [ p [] [ text ((toString albumCount) ++ " Albums") ]
+            , p [] [ text ((toString artistCount) ++ " Artists") ]
+            , p [] [ text ((toString trackCount) ++ " Tracks") ] ]
+          else
+            [text "No Albums"]
   in
     div
-      [ class "Rhythm"
-      , onClick RequestData ]
+      [ class "Wrapper" ]
       [ div
-        []
-        [ text textContent ]
-      , button
-        []
-        [ text "Load Data" ] ]
+        [ class "Rhythm"
+        , onClick RequestData ]
+        [ div
+          [ class "Rhythm" ]
+          content
+        , button
+          []
+          [ text "Load Data" ]
+        ]
+      ]
 
 
 ---- Get ModalData
@@ -104,5 +142,5 @@ getAllData =
     url =
       "http://localhost:5001/db"
   in
-    Http.send UpdateData (Http.get url LastFm.decodeImage)
+    Http.send UpdateData (Http.get url LastFm.decodeData)
 

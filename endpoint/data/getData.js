@@ -59,9 +59,34 @@ const getData = (env) => {
   }
 };
 
+const transform = (res) =>
+  Promise.resolve(
+    res.map((row) => {
+      if (row['@attr']) {
+        row.attributes = row['@attr'];
+        delete row['@attr'];
+      }
+
+      if (row.image) {
+        row.images = row.image.map((img) => ({
+          text: img['#text'],
+          size: img.size
+        }));
+        delete row.image;
+      }
+
+      if (row.streamable) {
+        delete row.streamable;
+      }
+
+      return row;
+    })
+  );
+
 const getAllData = () => {
   const namedRequest = (name) =>
     getData(name)
+      .then(transform)
       .then((res) => ({ name, res }));
 
   const sumRequests = (data) =>
