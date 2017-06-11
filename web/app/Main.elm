@@ -101,9 +101,9 @@ view model =
     data = model.data
     state = model.state
 
-    albumCount = List.length data.albums
-    artistCount = List.length data.artists
-    trackCount = List.length data.tracks
+    albumCount = toString (List.length data.albums)
+    artistCount = toString (List.length data.artists)
+    trackCount = toString (List.length data.tracks)
 
     content =
       case state.errorText of
@@ -113,12 +113,10 @@ view model =
         Nothing ->
           if state.isLoading then
             [ text "Loading..." ]
-          else if albumCount > 0 then
-            [ p [] [ text ((toString albumCount) ++ " Albums") ]
-            , p [] [ text ((toString artistCount) ++ " Artists") ]
-            , p [] [ text ((toString trackCount) ++ " Tracks") ] ]
           else
-            [text "No Albums"]
+            [ p [] [ text (albumCount ++ " Albums") ]
+            , p [] [ text (artistCount ++ " Artists") ]
+            , p [] [ text (trackCount ++ " Tracks") ] ]
   in
     div
       [ class "Wrapper" ]
@@ -128,6 +126,15 @@ view model =
         [ div
           [ class "Rhythm" ]
           content
+        , div
+          []
+          ( List.map
+            (\album ->
+              p
+              []
+              [ div [] [strong [] [text album.name]]
+              , div [] [text album.playcount] ] )
+            data.albums)
         , button
           []
           [ text "Load Data" ]
