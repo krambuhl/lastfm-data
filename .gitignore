@@ -1,3 +1,12 @@
 api.json
 node_modules
 dist
+tmp
+.DS_Store
+.cache
+*.log
+
+# elm-package generated files
+elm-stuff
+# elm-repl generated files
+repl-temp-*

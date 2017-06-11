@@ -1,0 +1,8 @@
+@import "reset-css/reset.css";
+
+html {
+  font-family: "Museo Sans", sans-serif;
+  font-weight: 500;
+  padding: 5vw;
+  padding-bottom: 15vw;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "lastfm-endpoint",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "USER=caforna node server/index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "json-server": "^0.10.1",
+    "lastfmapi": "^0.1.1"
+  }
+}
