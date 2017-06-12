@@ -59,16 +59,36 @@ const getData = (env) => {
   }
 };
 
+const transformProps = (row) =>
+  Object.keys(row).reduce((memo, key) => {
+    if (row[key] === '') {
+      memo[key] = null;
+    } else {
+      switch (key) {
+        case 'playcount':
+        case 'duration':
+        case 'rank':
+          memo[key] = parseInt(row[key], 10);
+          break;
+
+        default:
+          memo[key] = row[key];
+      }
+    }
+
+    return memo;
+  }, {});
+
 const transform = (res) =>
   Promise.resolve(
     res.map((row) => {
       if (row['@attr']) {
-        row.attributes = row['@attr'];
+        row.attributes = transformProps(row['@attr']);
         delete row['@attr'];
       }
 
       if (row.image) {
-        row.images = row.image.map((img) => ({
+        row.images = row.image.map((img) => transformProps({
           text: img['#text'],
           size: img.size
         }));
@@ -79,7 +99,7 @@ const transform = (res) =>
         delete row.streamable;
       }
 
-      return row;
+      return transformProps(row);
     })
   );
 

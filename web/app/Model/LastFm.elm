@@ -1,47 +1,53 @@
 module Model.LastFm exposing (..)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline as Pipeline
-
+import Json.Decode exposing (..)
+import Json.Decode.Pipeline exposing (decode, required, optional)
 
 -- API Types
 type alias ArtistInfo =
-  { mbid : String
+  { mbid : Maybe String
   , name : String
   , url : String }
 
+type ImageSize
+  = Small
+  | Medium
+  | Large
+  | ExtraLarge
+  | Mega
+
 type alias Image =
-  { size : String
-  , text : String }
+  { size : ImageSize
+  , text : Maybe String }
 
 type alias Attributes =
-  { rank : String }
+  { rank : Int }
 
 type alias Artist =
   { attributes : Attributes
   , images : List Image
-  , mbid : String
+  , mbid : Maybe String
   , name : String
-  , playcount : String
+  , playcount : Int
   , url : String }
 
 type alias Album =
   { artist : ArtistInfo
   , attributes : Attributes
   , images : List Image
-  , mbid : String
+  , mbid : Maybe String
   , name : String
-  , playcount : String
+  , playcount : Int
   , url : String }
 
 type alias Track =
   { artist : ArtistInfo
   , attributes : Attributes
-  , duration : String
+  , duration : Int
   , images : List Image
-  , mbid : String
+  , mbid : Maybe String
   , name : String
-  , playcount : String
+  , playcount : Int
   , url : String }
 
 type alias Data =
@@ -52,63 +58,70 @@ type alias Data =
 
 -- decode
 
-decodeData : Decode.Decoder Data
+decodeData : Decoder Data
 decodeData =
-  Decode.map3 Data
-    (Decode.field "albums" (Decode.list decodeAlbum))
-    (Decode.field "artists" (Decode.list decodeArtist))
-    (Decode.field "tracks" (Decode.list decodeTrack))
+  decode Data
+    |> required "albums" (list decodeAlbum)
+    |> required "artists" (list decodeArtist)
+    |> required "tracks" (list decodeTrack)
 
-
-decodeAlbum : Decode.Decoder Album
+decodeAlbum : Decoder Album
 decodeAlbum =
-  Pipeline.decode Album
-    |> Pipeline.required "artist" decodeArtistInfo
-    |> Pipeline.required "attributes" decodeAttributes
-    |> Pipeline.required "images" (Decode.list decodeImage)
-    |> Pipeline.required "mbid" Decode.string
-    |> Pipeline.required "name" Decode.string
-    |> Pipeline.required "playcount" Decode.string
-    |> Pipeline.required "url" Decode.string
+  decode Album
+    |> required "artist" decodeArtistInfo
+    |> required "attributes" decodeAttributes
+    |> required "images" (list decodeImage)
+    |> required "mbid" (nullable string)
+    |> required "name" string
+    |> required "playcount" int
+    |> required "url" string
 
-decodeArtist : Decode.Decoder Artist
+decodeArtist : Decoder Artist
 decodeArtist =
-  Pipeline.decode Artist
-    |> Pipeline.required "attributes" decodeAttributes
-    |> Pipeline.required "images" (Decode.list decodeImage)
-    |> Pipeline.required "mbid" Decode.string
-    |> Pipeline.required "name" Decode.string
-    |> Pipeline.required "playcount" Decode.string
-    |> Pipeline.required "url" Decode.string
+  decode Artist
+    |> required "attributes" decodeAttributes
+    |> required "images" (list decodeImage)
+    |> required "mbid" (nullable string)
+    |> required "name" string
+    |> required "playcount" int
+    |> required "url" string
 
-
-decodeTrack : Decode.Decoder Track
+decodeTrack : Decoder Track
 decodeTrack =
-  Pipeline.decode Track
-    |> Pipeline.required "artist" decodeArtistInfo
-    |> Pipeline.required "attributes" decodeAttributes
-    |> Pipeline.required "duration" Decode.string
-    |> Pipeline.required "images" (Decode.list decodeImage)
-    |> Pipeline.required "mbid" Decode.string
-    |> Pipeline.required "name" Decode.string
-    |> Pipeline.required "playcount" Decode.string
-    |> Pipeline.required "url" Decode.string
+  decode Track
+    |> required "artist" decodeArtistInfo
+    |> required "attributes" decodeAttributes
+    |> required "duration" int
+    |> required "images" (list decodeImage)
+    |> required "mbid" (nullable string)
+    |> required "name" string
+    |> required "playcount" int
+    |> required "url" string
 
-decodeArtistInfo : Decode.Decoder ArtistInfo
+decodeArtistInfo : Decoder ArtistInfo
 decodeArtistInfo =
-  Decode.map3 ArtistInfo
-    (Decode.field "mbid" Decode.string)
-    (Decode.field "name" Decode.string)
-    (Decode.field "url" Decode.string)
+  decode ArtistInfo
+    |> (required "mbid" (nullable string))
+    |> required "name" string
+    |> required "url" string
 
-decodeImage : Decode.Decoder Image
+decodeImageSize : String -> Decoder ImageSize
+decodeImageSize str =
+  case str of
+    "small" -> succeed Small
+    "medium" -> succeed Medium
+    "large" -> succeed Large
+    "extralarge" -> succeed ExtraLarge
+    "mega" -> succeed Mega
+    _ -> succeed Medium
+
+decodeImage : Decoder Image
 decodeImage =
-  Decode.map2 Image
-    (Decode.field "size" Decode.string)
-    (Decode.field "text" Decode.string)
+  map2 Image
+    ((field "size" string |> andThen decodeImageSize))
+    (field "text" (nullable string))
 
-decodeAttributes : Decode.Decoder Attributes
+decodeAttributes : Decoder Attributes
 decodeAttributes =
-  Decode.map Attributes
-    (Decode.field "rank" Decode.string)
-
+  decode Attributes
+    |> required "rank" int

@@ -1,11 +1,13 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+--import Html.Attributes exposing (..)
 import Http
 
 import Model.LastFm as LastFm
+import Tags.Rhythm as Rhythm
+import Tags.Wrapper as Wrapper
 
 
 -- Main
@@ -118,22 +120,21 @@ view model =
             , p [] [ text (artistCount ++ " Artists") ]
             , p [] [ text (trackCount ++ " Tracks") ] ]
   in
-    div
-      [ class "Wrapper" ]
-      [ div
-        [ class "Rhythm"
-        , onClick RequestData ]
-        [ div
-          [ class "Rhythm" ]
+    Wrapper.view
+      []
+      [ Rhythm.view
+        [ onClick RequestData ]
+        [ Rhythm.view
+          [ ]
           content
-        , div
+        , Rhythm.view
           []
           ( List.map
             (\album ->
               p
               []
-              [ div [] [strong [] [text album.name]]
-              , div [] [text album.playcount] ] )
+              [ div [] [ strong [] [text album.name] ]
+              , div [] [ text (toString album.playcount) ] ] )
             data.albums)
         , button
           []
