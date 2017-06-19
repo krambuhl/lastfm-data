@@ -1,2 +1,4 @@
-@import "modules/root.css";
-@import "modules/object.css";
+@import "variables/**/*.css";
+@import "Tags/Root.css";
+@import "Tags/**/*.css";
+@import "Components/**/*.css";

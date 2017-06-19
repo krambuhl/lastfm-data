@@ -1,4 +1,4 @@
-module Tags.Wrapper exposing (..)
+module Tags.Padding exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -8,21 +8,18 @@ type Variants
   = Default
   | Small
   | Large
-  | Shell
-
 
 variant : Variants -> Attribute msg
 variant vtype =
   class <|
     case vtype of
-      Default -> "Wrapper--default"
-      Small -> "Wrapper--small"
-      Large -> "Wrapper--large"
-      Shell -> "Wrapper--shell"
+      Default -> "Padding--default"
+      Small -> "Padding--small"
+      Large -> "Padding--large"
 
 
 view : List (Attribute msg) -> List (Html.Html msg) -> Html.Html msg
 view props children =
   div
-    (List.append [ class "Wrapper" ] props)
+    (List.append [ class "Padding" ] props)
     children

@@ -1,0 +1,8 @@
+.Control {
+  display: flex;
+  align-items: center;
+
+  & > * + * {
+    margin-left: var(--space-small);
+  }
+}

@@ -1,0 +1,13 @@
+.Rhythm {
+  &--default > * + * {
+    margin-top: var(--space-default);
+  }
+
+  &--small > * + * {
+    margin-top: var(--space-small);
+  }
+
+  &--large > * + * {
+    margin-top: var(--space-large);
+  }
+}

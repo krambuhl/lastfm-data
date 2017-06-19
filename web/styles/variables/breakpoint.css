@@ -1,0 +1,9 @@
+:root {
+  @custom-media --extra-small (width >= 24em);
+  @custom-media --small (width >= 32em);
+  @custom-media --medium-small (width >= 40em);
+  @custom-media --medium (width >= 48em);
+  @custom-media --medium-large (width >= 56em);
+  @custom-media --large (width >= 64em);
+  @custom-media --extra-large (width >= 72em);
+}

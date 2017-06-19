@@ -1,0 +1,36 @@
+.Chart {
+  display: flex;
+  align-items: flex-end;
+  white-space: nowrap;
+  height: 100%;
+  width: 1000em;
+
+  &__item {
+    position: relative;
+    display: block;
+    width: 3em;
+    height: 100%;
+    border-top: 3px solid black;
+    border-left: 1px solid white;
+
+    &:nth-child(2n) {
+      height: 50%;
+    }
+  }
+
+  &__name {
+    position: absolute;
+    bottom: -1em;
+    left: 25%;
+    display: block;
+    padding: 0 0.5em;
+    transform-origin: top left;
+    transform: rotate(270deg);
+    background-color: color(white alpha(80%));
+
+    & > span {
+      margin-right: 1em;
+      font-weight: bold;
+    }
+  }
+}

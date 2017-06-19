@@ -1,0 +1,27 @@
+.Wrapper {
+  margin: 0 auto;
+
+  &--default {
+    max-width: var(--wrapper-default);
+  }
+
+  &--small {
+    max-width: var(--wrapper-small);
+  }
+
+  &--large {
+    max-width: var(--wrapper-large);
+  }
+
+  &--shell {
+    @media (--medium) {
+      padding-left: var(--space-large);
+      padding-right: var(--space-large);
+    }
+
+    @media (--large) {
+      padding: 0;
+      max-width: var(--wrapper-shell);
+    }
+  }
+}

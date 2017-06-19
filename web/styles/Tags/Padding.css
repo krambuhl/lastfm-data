@@ -1,0 +1,13 @@
+.Padding {
+  &--small {
+    padding: var(--space-small);
+  }
+
+  &--default {
+    padding: var(--space-default);
+  }
+
+  &--large {
+    padding: calc(var(--space-large) * 2) var(--space-default);
+  }
+}

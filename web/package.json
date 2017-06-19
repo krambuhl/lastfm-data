@@ -7,31 +7,25 @@
     "start": "serve dist",
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm-run-all build:*",
-    "build:copy": "cpx public/** dist ",
-    "build:css": "postcss styles/styles.css -o dist/assets/styles.css",
-    "build:app": "cd app && elm-make Main.elm --output ../dist/assets/app.js",
+    "build:gulp": "gulp build",
+    "build:app": "cd app && elm-make ./Main.elm --output ../dist/assets/app.js",
     "dev": "npm-run-all --parallel dev:*",
-    "dev:copy": "cpx public/** dist -w",
-    "dev:css": "postcss styles/styles.css -o dist/assets/styles.css -w",
-    "dev:app": "cd app && elm-reactor"
-  },
-  "browserify": {
-    "transform": [
-      "hbsify"
-    ]
+    "dev:gulp": "gulp dev",
+    "dev:app": "chokidar 'app/**/*.elm' -c 'npm run build:app'"
   },
   "dependencies": {
-    "browserify": "^14.3.0",
+    "chokidar-cli": "^1.2.0",
     "cpx": "^1.5.0",
     "elm": "^0.18.0",
-    "hbsify": "^1.0.1",
+    "gulp": "^3.9.1",
+    "gulp-postcss": "^7.0.0",
     "npm-run-all": "^4.0.2",
     "postcss-cli": "^4.0.0",
     "postcss-cssnext": "^2.11.0",
-    "postcss-import": "^10.0.0",
+    "postcss-easy-import": "^2.1.0",
+    "postcss-nested": "^2.0.2",
     "reset-css": "^2.2.0",
-    "serve": "^5.1.4",
-    "watchify": "^3.9.0",
-    "whatwg-fetch": "^2.0.3"
+    "run-sequence": "^1.2.2",
+    "serve": "^5.1.4"
   }
 }

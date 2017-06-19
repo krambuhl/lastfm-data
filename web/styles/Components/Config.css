@@ -1,0 +1,42 @@
+.Config {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  & > * {
+    width: 100%;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+
+    &.is-inactive {
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  &__content {
+    max-width: var(--wrapper-tiny);
+    font-size: 2em;
+    line-height: 1.6em;
+
+    & strong {
+      cursor: pointer;
+      font-weight: bold;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__control {
+    margin-left: var(--space-default);
+    cursor: pointer;
+    font-size: 2em;
+    filter: contrast(0) brightness(2);
+  }
+}
