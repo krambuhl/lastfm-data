@@ -6,20 +6,21 @@ import Html.Attributes exposing (..)
 import Components.Icon as Icon
 
 
-type alias Options =
+type alias Options msg =
   { text : String
-  , name : String }
+  , name : String
+  , attributes : List (Attribute msg) }
 
 
-view : List (Attribute msg) -> Options -> Html.Html msg
-view props options =
+view : Options msg -> Html.Html msg
+view options =
   span
-    (List.append [ class "Control" ] props)
+    (List.append [ class "Control" ] options.attributes)
     [ span
       [ ]
       [ text options.text ]
     , Icon.view
-      []
-      { variant = Icon.Default
-      , name = options.name }
+      { name = options.name
+      , variant = Icon.Default
+      , attributes = [] }
     ]

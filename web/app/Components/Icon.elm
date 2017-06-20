@@ -4,19 +4,20 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
+type alias Options msg =
+  { name : String
+  , variant : Variants
+  , attributes : List (Attribute msg) }
+
+
 type Variants
   = Default
   | Small
   | Large
 
 
-type alias Options =
-  { name : String
-  , variant: Variants }
-
-
-view : List (Attribute msg) -> Options -> Html.Html msg
-view props options =
+view : Options msg -> Html.Html msg
+view options =
   let
     variant =
       case options.variant of
@@ -29,5 +30,5 @@ view props options =
         [ class "Icon"
         , class variant
         , class ("Icon--" ++ options.name) ]
-        props)
+        options.attributes)
       [ ]

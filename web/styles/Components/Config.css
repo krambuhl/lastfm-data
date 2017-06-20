@@ -2,26 +2,25 @@
   display: flex;
   align-items: center;
   width: 100%;
+  background-color: hsl(0 0% 30%);
+  color: white;
 
   & > * {
     width: 100%;
   }
 
-  &__container {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-between;
-    align-items: center;
-
-    &.is-inactive {
-      transform: translate3d(-100%, 0, 0);
-    }
-  }
-
   &__content {
     max-width: var(--wrapper-tiny);
-    font-size: 2em;
+    font-size: 1.3em;
     line-height: 1.6em;
+
+    @media (--small) {
+      font-size: 1.6em;
+    }
+
+    @media (--medium) {
+      font-size: 2em;
+    }
 
     & strong {
       cursor: pointer;

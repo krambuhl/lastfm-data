@@ -1,19 +1,16 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
 import Http
 
 import Model.LastFm as LastFm
 
-import Tags.Padding as Padding
 import Tags.Root as Root
-import Tags.Wrapper as Wrapper
 
-import Components.Icon as Icon
 import Components.Chart as Chart
-import Components.Control as Control
+import Components.Config as Config
+import Components.DataSet as DataSet
+import Components.MastHead as MastHead
 
 
 -- Main
@@ -42,7 +39,6 @@ type alias State =
   { dataView : DataSet
   , dataSort : SortFormat
   , isLoading : Bool
-  , isConfigOpen : Bool
   , errorText : Maybe String }
 
 
@@ -62,10 +58,9 @@ initData =
 
 initState : State
 initState =
-  { dataView = TopAlbums
+  { dataView = TopArtists
   , dataSort = PlayCount
   , isLoading = False
-  , isConfigOpen = False
   , errorText = Nothing }
 
 
@@ -80,9 +75,6 @@ init =
 type Msg
   = RequestData
   | UpdateData (Result Http.Error LastFm.Data)
-  | OpenConfig
-  | CloseConfig
-  | ToggleConfig
   | SwitchDataView
 
 
@@ -120,24 +112,6 @@ update msg model =
             , errorText = Just (toString error) }
         , Cmd.none )
 
-      OpenConfig ->
-        ( updateState
-          { state
-            | isConfigOpen = True }
-        , Cmd.none )
-
-      CloseConfig ->
-        ( updateState
-          { state
-            | isConfigOpen = False }
-        , Cmd.none )
-
-      ToggleConfig ->
-        ( updateState
-          { state
-            | isConfigOpen = not state.isConfigOpen }
-        , Cmd.none )
-
       SwitchDataView ->
         ( updateState
           ( case state.dataView of
@@ -166,220 +140,93 @@ view model =
             loadingView
           else
             dataView model
-  in
-    Root.view
-      []
-      [ mastHeadView model
-      , content ]
-
-
-mastHeadView : Model -> Html.Html Msg
-mastHeadView model =
-  let
-    state = model.state
-
-    title = \children ->
-      h1
-        [ class "MastHead__title" ]
-        children
-
-    control =
-      span
-        [ class "MastHead__control"
-        , onClick OpenConfig ]
-        [ Control.view []
-          { text = "Change View"
-          , name = "gear" }
-        ]
-
-    config =
-      div
-        [ class "MastHead__config" ]
-        [ configView model ]
-
-    container = \children ->
-      Padding.view
-        [ Padding.variant Padding.Default
-        , class "MastHead__container" ]
-        children
-
-    root = \children ->
-      div
-        [ classList
-          [ ("MastHead", True)
-          , ("is-config-open", state.isConfigOpen) ]
-        ]
-        [ Wrapper.view
-          [ Wrapper.variant Wrapper.Shell ]
-          [ container children
-          , config
-          ]
-        ]
-  in
-    root
-      [ title
-        [ text "Last.Fm — A Data Viz Thing" ]
-      , control
-      ]
-
-
-configView : Model -> Html.Html Msg
-configView model =
-  let
-    control =
-      div
-        [ class "Config__control"
-        , onClick CloseConfig ]
-        [ Icon.view []
-          { variant = Icon.Default
-          , name = "close" }
-        ]
-
-    container = \static ->
-      Wrapper.view
-        [ Wrapper.variant Wrapper.Shell ]
-        [ Padding.view
-          [ Padding.variant Padding.Large
-          , class "Config__container" ]
-          (control :: static)
-        ]
-
-    root = \static ->
-      div
-        [ class "Config" ]
-        [ container
-          [ div [ class "Config__content" ] static ]
-        ]
 
     dataViewText =
-      case model.state.dataView of
+      case state.dataView of
         TopAlbums -> "Top Albums by play count"
         TopArtists -> "Top Artists by play count"
         TopTracks -> "Top Tracks by play count"
   in
-    root
-      [ text "Using "
-      , strong [] [ text "Caforna" ]
-      , text "’s Last.fm data display "
-      , strong
-        [ onClick SwitchDataView ]
-        [ text dataViewText ]
-      ]
+    Root.view
+      { attributes = [] }
+      [ MastHead.view { attributes = [] }
+      , Config.view
+        { attributes = []
+        , viewText = dataViewText
+        , viewClick = SwitchDataView
+        }
+      , content ]
 
 
 dataView : Model -> Html.Html Msg
 dataView model =
   let
+    data = model.data
     state = model.state
-
-    dataView = state.dataView
-
-    container = \children ->
-      div
-        [ class "DataSet" ]
-        [ Wrapper.view
-          [ Wrapper.variant Wrapper.Shell ]
-          [ div
-            [ class "DataSet__container" ]
-            children
-          ]
-        ]
 
     getMax = \list ->
       let
         max =
           List.maximum
-            (List.map
-              (\item -> item.playcount)
-              list
-            )
+            (List.map (\item -> item.playcount) list)
       in
         case max of
-          Just num -> num
           Nothing -> 0
+          Just num -> num
 
     max =
-      case dataView of
-        TopAlbums -> getMax model.data.albums
-        TopArtists -> getMax model.data.artists
-        TopTracks -> getMax model.data.tracks
-
-    count =
-      500
-      --case dataView of
-      --  TopAlbums -> List.length model.data.albums
-      --  TopArtists -> List.length model.data.artists
-      --  TopTracks -> List.length model.data.tracks
-
-    chartWidth =
-      count * 3
-
-    item = \rowData ->
-      Chart.itemView []
-        { name = rowData.name
-        , value = rowData.value
-        , max = rowData.max }
+      case state.dataView of
+        TopAlbums -> getMax data.albums
+        TopArtists -> getMax data.artists
+        TopTracks -> getMax data.tracks
 
     children =
-      case dataView of
+      case state.dataView of
         TopAlbums ->
           (List.map
             (\album ->
-              item
-                { name = album.name
+              Chart.itemView
+                { title = album.name
+                , subTitle = album.artist.name
                 , value = album.playcount
-                , max = max }
+                , max = max
+                , attributes = [] }
             )
-            (List.take 500 model.data.albums)
+            (List.take (8 * 32) data.albums)
           )
 
         TopArtists ->
           (List.map
             (\artist ->
-              item
-                { name = artist.name
+              Chart.itemView
+                { title = artist.name
+                , subTitle = ""
                 , value = artist.playcount
-                , max = max }
+                , max = max
+                , attributes = [] }
             )
-            (List.take 500 model.data.artists)
+            (List.take (8 * 32) data.artists)
           )
 
         TopTracks ->
           (List.map
             (\track ->
-              item
-                { name = track.name
+              Chart.itemView
+                { title = track.name
+                , subTitle = track.artist.name
                 , value = track.playcount
-                , max = max }
+                , max = max
+                , attributes = [] }
             )
-            (List.take 500 model.data.tracks)
+            (List.take (8 * 32) data.tracks)
           )
-
   in
-    container
+    DataSet.view
+      { attributes = [] }
       [ Chart.view
-        [ style
-          [ ("width", toString chartWidth ++ "em") ]
-        ]
-        children ]
-
-
-artistView : LastFm.Artist -> Html.Html Msg
-artistView artist =
-  div
-    [ class "Artist" ]
-    [ div [ ] [ strong [ ] [text artist.name] ]
-    , div [ ] [ text (toString artist.playcount) ]
-    ]
-
-
-trackView : LastFm.Track -> Html.Html Msg
-trackView track =
-  div
-    [ class "Track" ]
-    [ div [ ] [ strong [ ] [text track.name] ]
-    , div [ ] [ text (toString track.playcount) ]
-    ]
+        { attributes = [] }
+        children
+      ]
 
 
 loadingView : Html.Html Msg

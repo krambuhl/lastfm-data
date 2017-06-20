@@ -4,22 +4,29 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
+type alias Options msg =
+  { variant : Variants
+  , attributes : List (Attribute msg) }
+
+
 type Variants
   = Default
   | Small
   | Large
 
-variant : Variants -> Attribute msg
-variant vtype =
-  class <|
-    case vtype of
-      Default -> "Padding--default"
-      Small -> "Padding--small"
-      Large -> "Padding--large"
 
-
-view : List (Attribute msg) -> List (Html.Html msg) -> Html.Html msg
-view props children =
-  div
-    (List.append [ class "Padding" ] props)
-    children
+view : Options msg -> List (Html.Html msg) -> Html.Html msg
+view options children =
+  let
+    variant =
+      case options.variant of
+        Default -> "Padding--default"
+        Small -> "Padding--small"
+        Large -> "Padding--large"
+  in
+    div
+      (List.append
+        [ class "Padding"
+        , class variant ]
+        options.attributes)
+      children

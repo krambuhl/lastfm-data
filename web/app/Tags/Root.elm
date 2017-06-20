@@ -4,8 +4,14 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-view : List (Attribute msg) -> List (Html.Html msg) -> Html.Html msg
-view props children =
+type alias Options msg =
+  { attributes : List (Attribute msg) }
+
+
+view : Options msg -> List (Html.Html msg) -> Html.Html msg
+view options children =
   div
-    (List.append [ class "Root" ] props)
+    (List.append
+      [ class "Root" ]
+      options.attributes)
     children

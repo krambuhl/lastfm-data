@@ -4,6 +4,11 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
+type alias Options msg =
+  { variant : Variants
+  , attributes : List (Attribute msg) }
+
+
 type Variants
   = Default
   | Small
@@ -11,18 +16,19 @@ type Variants
   | Shell
 
 
-variant : Variants -> Attribute msg
-variant vtype =
-  class <|
-    case vtype of
-      Default -> "Wrapper--default"
-      Small -> "Wrapper--small"
-      Large -> "Wrapper--large"
-      Shell -> "Wrapper--shell"
-
-
-view : List (Attribute msg) -> List (Html.Html msg) -> Html.Html msg
-view props children =
-  div
-    (List.append [ class "Wrapper" ] props)
-    children
+view : Options msg -> List (Html.Html msg) -> Html.Html msg
+view options children =
+  let
+    variant =
+      case options.variant of
+        Default -> "Wrapper--default"
+        Small -> "Wrapper--small"
+        Large -> "Wrapper--large"
+        Shell -> "Wrapper--shell"
+  in
+    div
+      (List.append
+        [ class "Wrapper"
+        , class variant ]
+        options.attributes)
+      children

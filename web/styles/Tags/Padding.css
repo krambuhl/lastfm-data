@@ -8,6 +8,6 @@
   }
 
   &--large {
-    padding: calc(var(--space-large) * 2) var(--space-default);
+    padding: var(--space-large) var(--space-default);
   }
 }
