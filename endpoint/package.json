@@ -2,11 +2,14 @@
   "name": "lastfm-endpoint",
   "version": "1.0.0",
   "scripts": {
-    "start": "USER=caforna node server/index.js"
+    "start": "node index.js"
   },
   "license": "MIT",
   "dependencies": {
     "json-server": "^0.10.1",
-    "lastfmapi": "^0.1.1"
+    "lastfmapi": "^0.1.1",
+    "mkdirp": "^0.5.1",
+    "p-throttle": "^1.1.0",
+    "unique-by": "^1.0.0"
   }
 }

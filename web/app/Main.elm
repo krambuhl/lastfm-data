@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Dict exposing (..)
 import Html exposing (..)
 import Http
 
@@ -180,6 +181,11 @@ dataView model =
         TopArtists -> getMax data.artists
         TopTracks -> getMax data.tracks
 
+    getImage = \images ->
+      case Dict.get "large" images of
+        Just url -> url
+        Nothing -> ""
+
     children =
       case state.dataView of
         TopAlbums ->
@@ -190,9 +196,10 @@ dataView model =
                 , subTitle = album.artist.name
                 , value = album.playcount
                 , max = max
+                , imageUrl = getImage album.images
                 , attributes = [] }
             )
-            (List.take (8 * 32) data.albums)
+            (List.take (8 * 12) data.albums)
           )
 
         TopArtists ->
@@ -203,9 +210,10 @@ dataView model =
                 , subTitle = ""
                 , value = artist.playcount
                 , max = max
+                , imageUrl = getImage artist.images
                 , attributes = [] }
             )
-            (List.take (8 * 32) data.artists)
+            (List.take (8 * 12) data.artists)
           )
 
         TopTracks ->
@@ -216,9 +224,10 @@ dataView model =
                 , subTitle = track.artist.name
                 , value = track.playcount
                 , max = max
+                , imageUrl = getImage track.images
                 , attributes = [] }
             )
-            (List.take (8 * 32) data.tracks)
+            (List.take (8 * 12) data.tracks)
           )
   in
     DataSet.view

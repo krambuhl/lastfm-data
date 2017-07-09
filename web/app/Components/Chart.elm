@@ -22,6 +22,7 @@ type alias ItemOptions msg =
   , subTitle : String
   , value : Int
   , max : Int
+  , imageUrl : String
   , attributes : List (Attribute msg) }
 
 
@@ -34,10 +35,6 @@ itemView options =
     color =
       hsl (degrees (0 + (ratio * 180))) 1 0.45
 
-    itemStyle =
-      [ ("min-width", toString (ratio * 100) ++ "%")
-      ]
-
     barStyle =
       [ ("transform", "scaleX(" ++ toString ratio ++ ")")
       , ("background-color", colorToCssRgb color)
@@ -45,23 +42,30 @@ itemView options =
   in
     div
       (List.append
-        [ class "Chart__item"
-        , style itemStyle ]
+        [ class "Chart__item" ]
         options.attributes)
-      [ div
-        [ class "Chart__value" ]
-        [ text (toString options.value)]
+      [ img
+        [ class "Chart__image"
+        , src options.imageUrl ]
+        []
       , div
-        [ class "Chart__name" ]
-        [ span
-          []
-          [ text options.title ]
-        , span
-          []
-          [ text options.subTitle ]
+        [ class "Chart__content" ]
+        [ div
+          [ class "Chart__value" ]
+          [ text (toString options.value)]
+        , div
+          [ class "Chart__name" ]
+          [ span
+            []
+            [ text options.title ]
+          , span
+            []
+            [ text options.subTitle ]
+          ]
         ]
       , div
         [ class "Chart__bar"
         , style barStyle ]
         []
       ]
+

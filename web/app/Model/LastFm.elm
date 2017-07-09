@@ -1,5 +1,6 @@
 module Model.LastFm exposing (..)
 
+import Dict exposing (..)
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 
@@ -9,42 +10,28 @@ type alias ArtistInfo =
   , name : String
   , url : String }
 
-type ImageSize
-  = Small
-  | Medium
-  | Large
-  | ExtraLarge
-  | Mega
-
-type alias Image =
-  { size : ImageSize
-  , text : Maybe String }
-
-type alias Attributes =
-  { rank : Int }
-
 type alias Artist =
-  { attributes : Attributes
-  , images : List Image
+  { rank : Int
+  , images : Dict String String
   , mbid : Maybe String
   , name : String
   , playcount : Int
   , url : String }
 
 type alias Album =
-  { artist : ArtistInfo
-  , attributes : Attributes
-  , images : List Image
+  { rank : Int
+  , artist : ArtistInfo
+  , images : Dict String String
   , mbid : Maybe String
   , name : String
   , playcount : Int
   , url : String }
 
 type alias Track =
-  { artist : ArtistInfo
-  , attributes : Attributes
+  { rank : Int
+  , artist : ArtistInfo
   , duration : Int
-  , images : List Image
+  , images : Dict String String
   , mbid : Maybe String
   , name : String
   , playcount : Int
@@ -70,7 +57,7 @@ decodeAlbum =
   decode Album
     |> required "artist" decodeArtistInfo
     |> required "attributes" decodeAttributes
-    |> required "images" (list decodeImage)
+    |> required "images" (dict string)
     |> required "mbid" (nullable string)
     |> required "name" string
     |> required "playcount" int
@@ -80,7 +67,7 @@ decodeArtist : Decoder Artist
 decodeArtist =
   decode Artist
     |> required "attributes" decodeAttributes
-    |> required "images" (list decodeImage)
+    |> required "images" (dict string)
     |> required "mbid" (nullable string)
     |> required "name" string
     |> required "playcount" int
@@ -92,7 +79,7 @@ decodeTrack =
     |> required "artist" decodeArtistInfo
     |> required "attributes" decodeAttributes
     |> required "duration" int
-    |> required "images" (list decodeImage)
+    |> required "images" (dict string)
     |> required "mbid" (nullable string)
     |> required "name" string
     |> required "playcount" int
@@ -104,22 +91,6 @@ decodeArtistInfo =
     |> (required "mbid" (nullable string))
     |> required "name" string
     |> required "url" string
-
-decodeImageSize : String -> Decoder ImageSize
-decodeImageSize str =
-  case str of
-    "small" -> succeed Small
-    "medium" -> succeed Medium
-    "large" -> succeed Large
-    "extralarge" -> succeed ExtraLarge
-    "mega" -> succeed Mega
-    _ -> succeed Medium
-
-decodeImage : Decoder Image
-decodeImage =
-  map2 Image
-    ((field "size" string |> andThen decodeImageSize))
-    (field "text" (nullable string))
 
 decodeAttributes : Decoder Attributes
 decodeAttributes =
